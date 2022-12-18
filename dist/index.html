@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="fr">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="theme-color" content="#4285f4">
+        <meta name="description" content="App Météo Prévisions CH">
+        <meta name="keywords" content="meteo, app, pwa">
+        <meta name="author" content="Anaïs Aerts">
+        <!-- *** LINK *** -->
+        <link rel="stylesheet" href="css/style.min.css">
+        <link rel="manifest" href="/manifest.webmanifest">
+        <!-- *** ICON *** -->
+        <link rel="apple-touch-icon" sizes="180x180" href="img/icon-180x180.png">
+        <link rel="icon" type="image/png" sizes="32x32" href="img/icon-32x32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="img/icon-16x16.png">
+
+        <title>App Météo - PWA</title>
+    </head>
+    <body>
+        <section class="today">
+            <div class="top">
+                <h4 id="city"></h4>
+                <h5 id="date"></h5>
+                <h5>
+                    <span id="currentTime"></span></h5>
+                <img src="img/ligne1.png" alt="">
+                <h3>today</h3>
+            </div>
+            <div class="mid">
+                <div class="temp">
+                    <h1 id="temp"></h1>
+                    <img src="img/ligne2.png" alt="">
+                </div>
+                <div class="ico"></div>
+                <div class="nom">
+                    <h3 id="condition"></h3>
+                    <img src="img/ligne1.png" alt="">
+                </div>
+                <div class="minmax">
+                    <img src="img/icons/hot.png" alt="">
+                    <h3 id="maxT"></h3>
+                    <span><img src="img/ligne3.png" alt=""></span>
+                    <h3 id="minT"></h3>
+                    <img src="img/icons/cold.png" alt="">
+                </div>
+                <div class="switch">
+                    <a href="#next" class="swith"><img src="img/icons/switch.png" alt=""></a>
+                </div>
+            </div>
+        </section>
+        <section class="next" id="next">
+            <div id="top">
+                <h1>next days</h1>
+            </div>
+            <div class="days">
+                <div class="days-cont"></div>
+            </div>
+        </section>
+
+        <div class="menu">
+            <button class="button" id="btnAdd">
+                <img src="img/icons/download.png" alt="Installer l'application">Installer
+            </button>
+            <div>
+                <input type="text" placeholder="mons, belgique" id="ville">
+                <a href="#" id="ville" class="btn">
+                    <img style="transform: scaleX(-1);" src="img/icons/search.png" alt="">
+                </a>
+            </div>
+        </div>
+
+        <!-- *** SCRIPTS *** -->
+        <script src="js/jquery-3.6.1.min.js"></script>
+        <script src="/service-worker.js"></script>
+        <script>
+            // service worker
+            if ('serviceWorker' in navigator) {
+                console.log('CLIENT: service worker registration in progress.');
+                navigator
+                    .serviceWorker
+                    .register('/service-worker.js')
+                    .then(function () {
+                        console.log('CLIENT: service worker registration complete!');
+                    }, function () {
+                        console.log('CLIENT: service worker registration failure.');
+                    });
+            } else {
+                console.log('CLIENT: service worker is not supported.');
+            }
+
+            // Initialize deferredPrompt for use later to show browser install prompt.
+            let deferredPrompt;
+
+            window.addEventListener('beforeinstallprompt', (e) => {
+                // Prevent the mini-infobar from appearing on mobile
+                e.preventDefault();
+                // Stash the event so it can be triggered later.
+                deferredPrompt = e;
+                // Update UI notify the user they can install the PWA
+                showInstallPromotion();
+                // Optionally, send analytics event that PWA install promo was shown.
+                console.log('beforeinstallprompt event was fired: ');
+            })
+
+            function showInstallPromotion() {
+                console.log("ok on peut installer");
+
+                $('#btnAdd').show();
+                // $('#btnNoAdd').hide();
+
+            }
+
+            var btnAdd = document.getElementById("btnAdd");
+
+            btnAdd.addEventListener('click', (e) => {
+                // hide our user interface that shows our A2HS button
+                btnAdd.style.display = 'none';
+                // Show the prompt
+                deferredPrompt.prompt();
+                // Wait for the user to respond to the prompt
+                deferredPrompt
+                    .userChoice
+                    .then((choiceResult) => {
+                        if (choiceResult.outcome === 'accepted') {
+                            console.log('User accepted the A2HS prompt');
+                        } else {
+                            console.log('User dismissed the A2HS prompt');
+                        }
+                        deferredPrompt = null;
+                    });
+                console.log('click');
+            });
+
+            // var btnNoAdd = document.getElementById("btnNoAdd");
+            // btnNoAdd.addEventListener('click', (e) => {     alert(         "Installation
+            // uniquement possible sur Chromium et Android. Si vous ne voyez pas" + " le
+            // bouton d'installation vous êtes probablement sur iOS sur mobile ou sur un " +
+            // "navigateur non-Chromium sur Desktop."     ); });
+        </script>
+        <script src="js/script.js"></script>
+    </body>
+</html>
